@@ -2,7 +2,7 @@ import { env } from "../../../env";
 
 type PurchaseRequest = {
   walletAddress: string;
-  amount: string; // The token amount that the user will receive
+  amount: string; // The token amount in wei that the user will receive
   selectedPaymentToken: string;
   paymentAmount: string; // The amount of ETH/USDT/USDC that the user will pay
   paymentTxHash: `0x${string}`; // Transaction hash of the payment

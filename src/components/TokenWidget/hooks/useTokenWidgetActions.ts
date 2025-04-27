@@ -2,6 +2,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { purchaseTokens } from "../services/tokenPurchaseService";
 import toast from "react-hot-toast";
 import { useTokenTransfer } from "./useTokenTransfer";
+import { parseEther } from "viem";
 
 /**
  * Hook to manage token purchase actions
@@ -81,11 +82,20 @@ export function useTokenWidgetActions() {
       // Step 2: Call the API with the transaction hash
       const apiToast = toast.loading(`Finalizing token purchase...`);
 
+      // Convert tokenAmount to wei for the API
+      let tokenAmountInWei: string;
+      try {
+        tokenAmountInWei = parseEther(tokenAmount).toString();
+      } catch (error) {
+        console.error("Error converting token amount to wei:", error);
+        tokenAmountInWei = parseEther("0").toString();
+      }
+
       const data = await purchaseTokens({
         walletAddress: address,
-        amount: tokenAmount, // The amount of tokens the user will receive
+        amount: tokenAmountInWei, // The amount of tokens in wei that the user will receive
         selectedPaymentToken: paymentMethod,
-        paymentAmount: paymentAmount, // The amount of ETH/USDT/USDC the user will pay
+        paymentAmount: paymentAmount, // The amount of ETH/USDT/USDC that the user will pay
         paymentTxHash: paymentTxHash, // Include the payment transaction hash
         referralCode: undefined, // Add referral handling if needed
       });
