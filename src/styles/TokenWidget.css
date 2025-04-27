@@ -28,6 +28,16 @@
   --rk-fonts-body: "Arial", sans-serif !important;
 }
 
+/* Fix for RainbowKit's white-on-white text issue in account modal */
+[data-rk] div[role="dialog"] button {
+  background-color: rgb(35, 35, 35) !important;
+}
+
+/* Ensure hover states are visible */
+[data-rk] div[role="dialog"] button:hover {
+  background-color: rgb(35, 35, 35) !important;
+}
+
 /* Widget container */
 .widget-container {
   background-color: #2a2a2a;

@@ -45,7 +45,7 @@ const TokenWidget = () => {
     handleMaxButtonClick
   } = useTokenWidgetBalances(address, paymentMethod);
   
-  const { handleBuyTokensClick } = useTokenWidgetActions();
+  const { handleBuyTokensClick, openConnectModal } = useTokenWidgetActions();
   
   // Get the token amount based on the payment amount
   const { tokenAmount } = useTokenConversion(buyAmount, paymentMethod);
@@ -122,7 +122,7 @@ const TokenWidget = () => {
         
         <ActionButtons 
           isConnected={isConnected} 
-          openConnectModal={useTokenWidgetActions().openConnectModal} 
+          openConnectModal={openConnectModal} 
           handleBuyTokensClick={onBuyTokensClick} 
           purchase={purchase} 
           termsAccepted={termsAccepted} 

@@ -4,6 +4,7 @@
 // For Vite projects, we access environment variables through import.meta.env
 export const env = {
   NODE_ENV: import.meta.env.VITE_NODE_ENV || "",
+  WALLET_ADDRESS: import.meta.env.VITE_WALLET_ADDRESS || "",
   WALLET_CONNECT_PROJECT_ID:
     import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || "",
   ALCHEMY_API_KEY: import.meta.env.VITE_ALCHEMY_API_KEY || "",
@@ -28,6 +29,7 @@ export const env = {
 export function validateEnv(): void {
   const requiredVars = [
     "NODE_ENV",
+    "WALLET_ADDRESS",
     "WALLET_CONNECT_PROJECT_ID",
     "ALCHEMY_API_KEY",
     "LYNOAI_CONTRACT_ADDRESS",

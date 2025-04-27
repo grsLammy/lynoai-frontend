@@ -1,11 +1,14 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { purchaseTokens } from "../services/tokenPurchaseService";
+import toast from "react-hot-toast";
+import { useTokenTransfer } from "./useTokenTransfer";
 
 /**
  * Hook to manage token purchase actions
  */
 export function useTokenWidgetActions() {
   const { openConnectModal } = useConnectModal();
+  const { transferTokens } = useTokenTransfer();
 
   /**
    * Handles the buy tokens action
@@ -30,7 +33,7 @@ export function useTokenWidgetActions() {
     }
 
     if (!termsAccepted) {
-      alert("Please accept the terms and conditions");
+      toast.error("Please accept the terms and conditions");
       return;
     }
 
@@ -40,27 +43,88 @@ export function useTokenWidgetActions() {
     }
 
     try {
+      // Show payment processing toast
+      const transferToast = toast.loading(
+        `Processing payment of ${paymentAmount} ${paymentMethod}...`
+      );
+
+      // Step 1: Transfer tokens to the project wallet
+      let paymentTxHash: `0x${string}`;
+
+      try {
+        paymentTxHash = await transferTokens(
+          paymentMethod as "ETH" | "USDT" | "USDC",
+          paymentAmount
+        );
+
+        // Update the toast with transaction info
+        toast.success(
+          `Payment successful! Transaction: ${paymentTxHash.substring(
+            0,
+            10
+          )}...`,
+          { id: transferToast, duration: 3000 }
+        );
+      } catch (transferError) {
+        // Handle transfer error
+        toast.error(
+          `Payment failed: ${
+            transferError instanceof Error
+              ? transferError.message
+              : "Unknown error"
+          }`,
+          { id: transferToast }
+        );
+        return false;
+      }
+
+      // Step 2: Call the API with the transaction hash
+      const apiToast = toast.loading(`Finalizing token purchase...`);
+
       const data = await purchaseTokens({
         walletAddress: address,
         amount: tokenAmount, // The amount of tokens the user will receive
         selectedPaymentToken: paymentMethod,
         paymentAmount: paymentAmount, // The amount of ETH/USDT/USDC the user will pay
+        paymentTxHash: paymentTxHash, // Include the payment transaction hash
         referralCode: undefined, // Add referral handling if needed
       });
 
+      // Dismiss API loading toast
+      toast.dismiss(apiToast);
+
       console.log("Purchase successful:", data);
 
-      // Show success message
-      alert(
-        "Purchase initiated successfully! Check your wallet for transaction confirmation."
+      // Show detailed success toast
+      toast.success(
+        `🎉 Purchase Initiated!\n\nYou'll receive: ${tokenAmount} LYNO tokens in 30 days\nPaid with: ${paymentAmount} ${paymentMethod}\nPayment Transaction: ${paymentTxHash.substring(
+          0,
+          10
+        )}...\n\nCheck your wallet for confirmation after 30 days.`,
+        {
+          duration: 10000,
+          style: {
+            maxWidth: "500px",
+            whiteSpace: "pre-line", // This preserves the line breaks
+          },
+        }
       );
       return true;
     } catch (error) {
       console.error("Error buying tokens:", error);
-      alert(
-        `Purchase failed: ${
+
+      // Show detailed error toast
+      toast.error(
+        `❌ Purchase Failed\n\n${
           error instanceof Error ? error.message : "Unknown error"
-        }`
+        }\n\nPlease try again later or contact support.`,
+        {
+          duration: 7000,
+          style: {
+            maxWidth: "500px",
+            whiteSpace: "pre-line", // This preserves the line breaks
+          },
+        }
       );
       return false;
     }

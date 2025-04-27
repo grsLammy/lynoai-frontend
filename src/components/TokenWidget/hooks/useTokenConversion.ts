@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { env } from "../../../env";
 import { formatUnits, parseEther } from "viem";
+import toast from "react-hot-toast";
 
 /**
  * Hook to handle token conversion calculations
@@ -36,6 +37,9 @@ export function useTokenConversion(
       setTokenAmount(calculatedTokenAmount.toFixed(2));
     } catch (error) {
       console.error("Error calculating token amount:", error);
+      toast.error(
+        "Error calculating token amount. Please try a different amount."
+      );
       setTokenAmount("0");
     }
   }, [paymentAmount, tokenPrice, paymentMethod]);

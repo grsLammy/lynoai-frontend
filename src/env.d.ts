@@ -12,5 +12,6 @@ interface ImportMetaEnv {
   readonly VITE_CURRENT_PRICE: string;
   readonly VITE_USDT_CONTRACT_ADDRESS: string;
   readonly VITE_USDC_CONTRACT_ADDRESS: string;
+  readonly VITE_WALLET_ADDRESS: string;
   // Add other env variables as needed
 }
