@@ -33,8 +33,13 @@ const ActionButtons = ({
           {purchase.isLoading ? "Processing..." : "Buy Tokens"}
         </button>
         
-        <button className="referral-btn">
-          Use Referral Code
+        <button 
+          className="referral-btn" 
+          disabled={true}
+          title="Referral functionality is not available at this time"
+          style={{ opacity: 0.6, cursor: 'not-allowed' }}
+        >
+          Use Referral Code (Coming Soon)
         </button>
       </>
     );

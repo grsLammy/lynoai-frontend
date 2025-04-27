@@ -4,6 +4,7 @@
 // to include our custom environment variables
 interface ImportMetaEnv {
   readonly VITE_NODE_ENV: string;
+  readonly VITE_BACKEND_API_URL: string;
   readonly VITE_WALLET_CONNECT_PROJECT_ID: string;
   readonly VITE_ALCHEMY_API_KEY: string;
   readonly VITE_LYNOAI_CONTRACT_ADDRESS: string;

@@ -5,17 +5,26 @@ interface ReceiveSectionProps {
   buyAmount: string;
   isLoading: boolean;
   paymentMethod: string;
+  tokenAmount: string;
 }
 
 /**
  * Receive section showing token amount to be received
  */
-const ReceiveSection = ({ buyAmount, isLoading, paymentMethod }: ReceiveSectionProps) => {
+const ReceiveSection = ({ 
+  buyAmount, 
+  isLoading, 
+  paymentMethod, 
+  tokenAmount 
+}: ReceiveSectionProps) => {
   const [ethPrice, setEthPrice] = useState<number>(0);
   const [isLoadingPrice, setIsLoadingPrice] = useState<boolean>(false);
 
   // Fetch ETH price when component mounts
   useEffect(() => {
+    // Only fetch if we need to calculate locally
+    if (tokenAmount !== undefined) return;
+    
     const fetchEthPrice = async () => {
       try {
         setIsLoadingPrice(true);
@@ -31,10 +40,16 @@ const ReceiveSection = ({ buyAmount, isLoading, paymentMethod }: ReceiveSectionP
     };
 
     fetchEthPrice();
-  }, []);
+  }, [tokenAmount]);
 
   // Calculate tokens received based on payment method
   const calculateTokens = () => {
+    // If tokenAmount is provided, use it
+    if (tokenAmount !== undefined) {
+      return tokenAmount;
+    }
+    
+    // Legacy calculation
     if (!buyAmount || Number(buyAmount) === 0) return "0";
     
     const amount = Number(buyAmount);
@@ -54,11 +69,14 @@ const ReceiveSection = ({ buyAmount, isLoading, paymentMethod }: ReceiveSectionP
     return "...";
   };
 
+  // Determine if we're in loading state
+  const isCalculating = isLoading || (isLoadingPrice && tokenAmount === undefined);
+
   return (
     <div className="receive-section">
       <p>You will receive:</p>
       <p className="amount">
-        {isLoading || isLoadingPrice 
+        {isCalculating 
           ? "..." 
           : `${calculateTokens()} LYNO`
         }

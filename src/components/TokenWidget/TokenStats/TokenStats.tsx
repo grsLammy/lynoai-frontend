@@ -1,4 +1,3 @@
-import { formatEther } from 'viem';
 import { formatTokenAmount } from '../../../utils/formatters';
 import { env } from '../../../env';
 interface TokenStatsProps {
@@ -15,9 +14,15 @@ const TokenStats = ({ availableTokens, tokensSold, isLoading }: TokenStatsProps)
   const calculateProgress = () => {
     if (isLoading || !availableTokens || !tokensSold) return 0;
     
-    const total = Number(formatEther(availableTokens)) + Number(formatEther(tokensSold));
-    const sold = Number(formatEther(tokensSold));
-    return (sold / total) * 100;
+    // Total supply is the sum of available and sold tokens
+    const totalSupply = availableTokens + tokensSold;
+    
+    // Calculate the percentage sold of total supply
+    if (totalSupply === 0n) return 0;
+    
+    // Convert to number for percentage calculation
+    const soldPercentage = Number((tokensSold * 100n) / totalSupply);
+    return Math.min(soldPercentage, 100); // Cap at 100%
   };
 
   return (

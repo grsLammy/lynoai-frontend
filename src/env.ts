@@ -16,6 +16,12 @@ export const env = {
   USDC_CONTRACT_ADDRESS:
     import.meta.env.VITE_USDC_CONTRACT_ADDRESS ||
     "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // Mainnet USDC address
+
+  // Backend API URL configuration
+  BACKEND_API_URL:
+    import.meta.env.VITE_NODE_ENV === "production"
+      ? import.meta.env.VITE_BACKEND_API_URL || "https://api.lynoai.com"
+      : "http://localhost:3001",
 };
 
 // Validate that required environment variables are set
@@ -29,14 +35,14 @@ export function validateEnv(): void {
     "CURRENT_PRICE",
   ];
 
-  const missingVars = requiredVars.filter(
-    (varName) => !env[varName as keyof typeof env]
-  );
-
-  if (missingVars.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missingVars.join(", ")}. ` +
-        `Make sure they are defined in your .env file with the VITE_ prefix.`
-    );
+  // In production, ensure we have a backend API URL
+  if (env.NODE_ENV === "production" && !import.meta.env.VITE_BACKEND_API_URL) {
+    console.warn("VITE_BACKEND_API_URL is not set in production environment");
   }
+
+  requiredVars.forEach((variable) => {
+    if (!env[variable as keyof typeof env]) {
+      throw new Error(`Missing required environment variable: ${variable}`);
+    }
+  });
 }
