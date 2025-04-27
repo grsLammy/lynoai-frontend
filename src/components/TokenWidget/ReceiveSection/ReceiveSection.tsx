@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { env } from "../../../env";
 
 interface ReceiveSectionProps {
   buyAmount: string;
@@ -19,12 +18,10 @@ const ReceiveSection = ({
 }: ReceiveSectionProps) => {
   const [ethPrice, setEthPrice] = useState<number>(0);
   const [isLoadingPrice, setIsLoadingPrice] = useState<boolean>(false);
+  const [usdValue, setUsdValue] = useState<string>("0");
 
-  // Fetch ETH price when component mounts
+  // Fetch ETH price when component mounts or payment method changes
   useEffect(() => {
-    // Only fetch if we need to calculate locally
-    if (tokenAmount !== undefined) return;
-    
     const fetchEthPrice = async () => {
       try {
         setIsLoadingPrice(true);
@@ -40,47 +37,50 @@ const ReceiveSection = ({
     };
 
     fetchEthPrice();
-  }, [tokenAmount]);
+  }, [paymentMethod]);
 
-  // Calculate tokens received based on payment method
-  const calculateTokens = () => {
-    // If tokenAmount is provided, use it
-    if (tokenAmount !== undefined) {
-      return tokenAmount;
+  // Calculate USD value whenever relevant values change
+  useEffect(() => {
+    if (buyAmount && Number(buyAmount) > 0) {
+      // For stablecoins, USD value is the same as the payment amount
+      if (paymentMethod === "USDT" || paymentMethod === "USDC") {
+        setUsdValue(Number(buyAmount).toLocaleString(undefined, { maximumFractionDigits: 2 }));
+      } 
+      // For ETH, convert to USD using the fetched price
+      else if (paymentMethod === "ETH" && ethPrice > 0) {
+        const valueInUsd = Number(buyAmount) * ethPrice;
+        setUsdValue(valueInUsd.toLocaleString(undefined, { maximumFractionDigits: 2 }));
+      } else {
+        setUsdValue("...");
+      }
+    } else {
+      setUsdValue("0");
     }
-    
-    // Legacy calculation
-    if (!buyAmount || Number(buyAmount) === 0) return "0";
-    
-    const amount = Number(buyAmount);
-    const tokenPrice = Number(env.CURRENT_PRICE);
-    
-    // For USDT and USDC (stablecoins), direct conversion
-    if (paymentMethod === "USDT" || paymentMethod === "USDC") {
-      return (amount / tokenPrice).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-    
-    // For ETH, convert ETH to USD first
-    if (ethPrice > 0) {
-      const valueInUsd = amount * ethPrice;
-      return (valueInUsd / tokenPrice).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-    
-    return "...";
-  };
+  }, [buyAmount, ethPrice, paymentMethod]);
 
   // Determine if we're in loading state
-  const isCalculating = isLoading || (isLoadingPrice && tokenAmount === undefined);
+  const isCalculating = isLoading || isLoadingPrice;
 
   return (
-    <div className="receive-section">
-      <p>You will receive:</p>
-      <p className="amount">
-        {isCalculating 
-          ? "..." 
-          : `${calculateTokens()} LYNO`
-        }
-      </p>
+    <div>
+      <div className="receive-section">
+        <p>You will receive:</p>
+        <p className="amount">
+          {isCalculating 
+            ? "..." 
+            : `${tokenAmount} LYNO`
+          }
+        </p>
+      </div>
+      <div className="receive-section" style={{ fontSize: '12px', color: '#aaa', marginTop: '5px' }}>
+        <p>Value in USD:</p>
+        <p>
+          {isCalculating 
+            ? "..." 
+            : `$${usdValue}`
+          }
+        </p>
+      </div>
     </div>
   );
 };
