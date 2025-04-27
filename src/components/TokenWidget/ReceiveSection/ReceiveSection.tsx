@@ -22,6 +22,9 @@ const ReceiveSection = ({
 
   // Fetch ETH price when component mounts or payment method changes
   useEffect(() => {
+    // Only fetch ETH price if ETH is selected
+    if (paymentMethod !== "ETH") return;
+    
     const fetchEthPrice = async () => {
       try {
         setIsLoadingPrice(true);
@@ -41,25 +44,18 @@ const ReceiveSection = ({
 
   // Calculate USD value whenever relevant values change
   useEffect(() => {
-    if (buyAmount && Number(buyAmount) > 0) {
-      // For stablecoins, USD value is the same as the payment amount
-      if (paymentMethod === "USDT" || paymentMethod === "USDC") {
-        setUsdValue(Number(buyAmount).toLocaleString(undefined, { maximumFractionDigits: 2 }));
-      } 
-      // For ETH, convert to USD using the fetched price
-      else if (paymentMethod === "ETH" && ethPrice > 0) {
-        const valueInUsd = Number(buyAmount) * ethPrice;
-        setUsdValue(valueInUsd.toLocaleString(undefined, { maximumFractionDigits: 2 }));
-      } else {
-        setUsdValue("...");
-      }
+    if (paymentMethod !== "ETH") return;
+    
+    if (buyAmount && Number(buyAmount) > 0 && ethPrice > 0) {
+      const valueInUsd = Number(buyAmount) * ethPrice;
+      setUsdValue(valueInUsd.toLocaleString(undefined, { maximumFractionDigits: 2 }));
     } else {
       setUsdValue("0");
     }
   }, [buyAmount, ethPrice, paymentMethod]);
 
   // Determine if we're in loading state
-  const isCalculating = isLoading || isLoadingPrice;
+  const isCalculating = isLoading || (isLoadingPrice && paymentMethod === "ETH");
 
   return (
     <div>
@@ -72,15 +68,19 @@ const ReceiveSection = ({
           }
         </p>
       </div>
-      <div className="receive-section" style={{ fontSize: '12px', color: '#aaa', marginTop: '5px' }}>
-        <p>Value in USD:</p>
-        <p>
-          {isCalculating 
-            ? "..." 
-            : `$${usdValue}`
-          }
-        </p>
-      </div>
+      
+      {/* Only show USD value for ETH payments */}
+      {paymentMethod === "ETH" && (
+        <div className="receive-section" style={{ fontSize: '12px', color: '#aaa', marginTop: '5px' }}>
+          <p>Value in USD:</p>
+          <p>
+            {isCalculating 
+              ? "..." 
+              : `$${usdValue}`
+            }
+          </p>
+        </div>
+      )}
     </div>
   );
 };
