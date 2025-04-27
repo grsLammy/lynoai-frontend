@@ -48,7 +48,7 @@ const TokenWidget = () => {
   const { handleBuyTokensClick, openConnectModal } = useTokenWidgetActions();
   
   // Get the token amount based on the payment amount
-  const { tokenAmount } = useTokenConversion(buyAmount, paymentMethod);
+  const { tokenAmount, isLoadingPrice } = useTokenConversion(buyAmount, paymentMethod);
 
   // Contract data
   const {
@@ -113,6 +113,7 @@ const TokenWidget = () => {
           isLoading={isLoading}
           paymentMethod={paymentMethod}
           tokenAmount={tokenAmount} // Pass the calculated token amount
+          isLoadingPrice={isLoadingPrice} // Pass loading state from conversion hook
         />
         
         <TermsCheckbox 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { env } from "../../../env";
-import { formatUnits, parseEther } from "viem";
 import toast from "react-hot-toast";
 
 /**
@@ -12,11 +11,37 @@ export function useTokenConversion(
   paymentMethod: string
 ) {
   const [tokenAmount, setTokenAmount] = useState<string>("0");
+  const [ethPrice, setEthPrice] = useState<number>(0);
+  const [isLoadingPrice, setIsLoadingPrice] = useState<boolean>(false);
 
-  // Get the token price from environment variables
-  const tokenPrice = env.CURRENT_PRICE
-    ? parseEther(env.CURRENT_PRICE)
-    : parseEther("0.01"); // Default to 0.01 if not set
+  // Fetch ETH price when component mounts or payment method changes
+  useEffect(() => {
+    // Only fetch ETH price if ETH is selected
+    if (paymentMethod !== "ETH") return;
+
+    const fetchEthPrice = async () => {
+      try {
+        setIsLoadingPrice(true);
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+        );
+        const data = await response.json();
+        setEthPrice(data.ethereum.usd);
+        setIsLoadingPrice(false);
+      } catch (error) {
+        console.error("Error fetching ETH price:", error);
+        setEthPrice(2000); // Fallback price if API fails
+        setIsLoadingPrice(false);
+      }
+    };
+
+    fetchEthPrice();
+  }, [paymentMethod]);
+
+  // Get the token price from environment variables (in USD)
+  const tokenPriceInUsd = env.CURRENT_PRICE
+    ? parseFloat(env.CURRENT_PRICE)
+    : 0.01; // Default to 0.01 if not set
 
   // Calculate token amount when payment amount or token price changes
   useEffect(() => {
@@ -27,11 +52,24 @@ export function useTokenConversion(
         return;
       }
 
-      // Token price in ETH (or equivalent value in USDT/USDC)
-      const tokenPriceInPaymentToken = parseFloat(formatUnits(tokenPrice, 18));
+      let calculatedTokenAmount: number;
 
-      // Calculate how many tokens the user will get
-      const calculatedTokenAmount = paymentValue / tokenPriceInPaymentToken;
+      // For ETH, convert to USD first then calculate tokens
+      if (paymentMethod === "ETH") {
+        if (ethPrice <= 0) {
+          // If ETH price isn't loaded yet, don't calculate
+          return;
+        }
+        // Convert ETH to USD
+        const valueInUsd = paymentValue * ethPrice;
+        // Calculate tokens based on USD value
+        calculatedTokenAmount = valueInUsd / tokenPriceInUsd;
+      }
+      // For stablecoins (USDT/USDC), direct calculation
+      else {
+        // Direct calculation as these are already in USD
+        calculatedTokenAmount = paymentValue / tokenPriceInUsd;
+      }
 
       // Format to 2 decimal places
       setTokenAmount(calculatedTokenAmount.toFixed(2));
@@ -42,9 +80,10 @@ export function useTokenConversion(
       );
       setTokenAmount("0");
     }
-  }, [paymentAmount, tokenPrice, paymentMethod]);
+  }, [paymentAmount, tokenPriceInUsd, paymentMethod, ethPrice]);
 
   return {
     tokenAmount,
+    isLoadingPrice,
   };
 }

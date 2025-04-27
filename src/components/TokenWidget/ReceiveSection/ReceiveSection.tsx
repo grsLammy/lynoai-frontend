@@ -5,6 +5,7 @@ interface ReceiveSectionProps {
   isLoading: boolean;
   paymentMethod: string;
   tokenAmount: string;
+  isLoadingPrice?: boolean;
 }
 
 /**
@@ -14,10 +15,10 @@ const ReceiveSection = ({
   buyAmount, 
   isLoading, 
   paymentMethod, 
-  tokenAmount 
+  tokenAmount,
+  isLoadingPrice = false
 }: ReceiveSectionProps) => {
   const [ethPrice, setEthPrice] = useState<number>(0);
-  const [isLoadingPrice, setIsLoadingPrice] = useState<boolean>(false);
   const [usdValue, setUsdValue] = useState<string>("0");
 
   // Fetch ETH price when component mounts or payment method changes
@@ -27,15 +28,12 @@ const ReceiveSection = ({
     
     const fetchEthPrice = async () => {
       try {
-        setIsLoadingPrice(true);
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
         const data = await response.json();
         setEthPrice(data.ethereum.usd);
-        setIsLoadingPrice(false);
       } catch (error) {
         console.error('Error fetching ETH price:', error);
         setEthPrice(2000); // Fallback price if API fails
-        setIsLoadingPrice(false);
       }
     };
 
@@ -55,7 +53,7 @@ const ReceiveSection = ({
   }, [buyAmount, ethPrice, paymentMethod]);
 
   // Determine if we're in loading state
-  const isCalculating = isLoading || (isLoadingPrice && paymentMethod === "ETH");
+  const isCalculating = isLoading || isLoadingPrice;
 
   return (
     <div>
