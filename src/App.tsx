@@ -6,9 +6,6 @@ function App() {
   return (
     <RainbowKitWrapper>
       <div className="app">
-        <header>
-          <h1>Lyno AI Token Sale</h1>
-        </header>
         <main>
           <TokenWidget />
         </main>

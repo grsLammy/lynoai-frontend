@@ -134,7 +134,8 @@ const TokenWidget = () => {
         
         <ReceiveSection 
           buyAmount={buyAmount} 
-          isLoading={isLoading} 
+          isLoading={isLoading}
+          paymentMethod={paymentMethod}
         />
         
         <TermsCheckbox 
