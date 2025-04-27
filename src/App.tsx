@@ -1,5 +1,5 @@
 import { RainbowKitWrapper } from './providers/RainbowKitProvider'
-import { ConnectWallet } from './components/ConnectWallet'
+import TokenWidget from './components/TokenWidget'
 import './App.css'
 
 function App() {
@@ -7,15 +7,10 @@ function App() {
     <RainbowKitWrapper>
       <div className="app">
         <header>
-          <h1>Lyno AI</h1>
-          <ConnectWallet />
+          <h1>Lyno AI Token Sale</h1>
         </header>
         <main>
-          {/* Your app content goes here */}
-          <div className="content">
-            <h2>Welcome to Lyno AI</h2>
-            <p>Connect your wallet to get started</p>
-          </div>
+          <TokenWidget />
         </main>
       </div>
     </RainbowKitWrapper>

@@ -1,0 +1,341 @@
+/* Widget wrapper to contain both connection bar and widget */
+.widget-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Network info bar for connected wallet display */
+.network-info-bar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Custom RainbowKit theme variables to match our design */
+[data-rk] {
+  --rk-colors-accentColor: #5252cd !important;
+  --rk-colors-connectButtonBackground: #2a2a2a !important;
+  --rk-colors-connectButtonText: #fff !important;
+  --rk-colors-modalBackground: #1a1a1a !important;
+  --rk-colors-modalText: #fff !important;
+  --rk-radii-connectButton: 8px !important;
+  --rk-fonts-body: "Arial", sans-serif !important;
+}
+
+/* Widget container */
+.widget-container {
+  background-color: #2a2a2a;
+  border-radius: 15px;
+  padding: 20px;
+  width: 350px;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.phase {
+  background-color: #3a3a3a;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+}
+
+.token-stats {
+  text-align: center;
+  margin: 20px 0;
+  background-color: #5252cd;
+  padding: 1em;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stat-left,
+.stat-right {
+  width: 50%;
+  float: left;
+}
+
+.total-sold,
+.remaining-amount {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 200;
+}
+
+.label {
+  font-size: 14px;
+  color: #eaeaea;
+  margin: 5px 0;
+}
+
+.remaining {
+  font-size: 12px;
+  color: #eaeaea;
+  margin: 10px 0 5px;
+}
+
+.remaining-amount {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.progress-bar {
+  background-color: #eaeaea;
+  height: 10px;
+  border-radius: 5px;
+  margin: 11px 0px 16px;
+  overflow: hidden;
+  float: left;
+  width: 100%;
+}
+
+.progress {
+  background-color: #06064e;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.payment-options {
+  border-radius: 4px;
+  overflow: hidden;
+  display: grid;
+  width: 100%;
+  text-align: center;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 33px;
+  margin: 20px 0;
+}
+
+.payment-options input {
+  display: none;
+}
+
+.payment-options label {
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  border-radius: 23px;
+  background: #2e53ba;
+  font-size: 13px;
+}
+
+.payment-options label:last-of-type {
+  border-right: 0;
+}
+
+.payment-options label:hover {
+  background: #eee;
+  color: #06064e;
+}
+
+.payment-options input:checked + label {
+  background: #865afe;
+}
+
+.input-section {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.input-section label {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.input-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.amount-label {
+  text-align: left;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.wallet-bal {
+  font-size: 12px;
+  color: #aaa;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a1a;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+.input-wrapper input {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  width: 100%;
+  outline: none;
+}
+
+.max-btn {
+  background-color: #3a3a3a;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.receive-section {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.receive-section p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.amount {
+  color: #5252cd;
+  font-weight: bold;
+}
+
+.status_price {
+  width: 100%;
+  font-size: 20px;
+  color: #aaa;
+  margin-top: 10px;
+  clear: both;
+}
+
+.status_price span {
+  font-weight: bold;
+  color: #fff;
+  font-size: 20px;
+}
+
+.terms {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px 0;
+  font-size: 12px;
+  color: #aaa;
+  text-align: left;
+}
+
+.terms input {
+  margin-right: 10px;
+  margin-top: 2px;
+}
+
+.terms label {
+  color: #aaa;
+}
+
+.buy-btn {
+  background-color: #5252cd;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  color: #fff;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.buy-btn:hover {
+  background-color: #4242ad;
+}
+
+.buy-btn:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+}
+
+.referral-btn {
+  background-color: #1a1a1a;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  color: #aaa;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.referral-btn:hover {
+  background-color: #333;
+}
+
+.connect-wallet-container {
+  margin: 30px 0;
+  text-align: center;
+}
+
+.referral-input-wrapper {
+  display: flex;
+  margin-top: 10px;
+}
+
+.referral-input-wrapper input {
+  flex: 1;
+  background-color: #1a1a1a;
+  border: none;
+  padding: 10px;
+  border-radius: 5px 0 0 5px;
+  color: #fff;
+  outline: none;
+}
+
+.referral-input-wrapper button {
+  background-color: #5252cd;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 0 5px 5px 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Debug info for development */
+.debug-info {
+  background-color: #333;
+  border: 1px solid #444;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.debug-info p {
+  margin: 5px 0;
+  color: #00ff00;
+}
