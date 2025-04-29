@@ -20,9 +20,7 @@ export const env = {
 
   // Backend API URL configuration
   BACKEND_API_URL:
-    import.meta.env.VITE_NODE_ENV === "production"
-      ? import.meta.env.VITE_BACKEND_API_URL || "https://api.lynoai.com"
-      : "http://localhost:3001",
+    import.meta.env.VITE_BACKEND_API_URL || "https://api.widget.lynoai.com",
 };
 
 // Validate that required environment variables are set
