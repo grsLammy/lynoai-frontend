@@ -25,11 +25,21 @@ const TokenStats = ({ availableTokens, tokensSold, isLoading }: TokenStatsProps)
     return Math.min(soldPercentage, 100); // Cap at 100%
   };
 
+  // Function to determine what to display for tokensSold
+  const getTokensSoldDisplay = () => {
+    // If tokensSold exists and is 0, show "0" regardless of loading state
+    if (tokensSold !== undefined && tokensSold === 0n) {
+      return "0";
+    }
+    // Otherwise, show loading or the formatted amount
+    return isLoading ? "Loading..." : formatTokenAmount(tokensSold);
+  };
+
   return (
     <div className="token-stats">
       <div className="stat-left">
         <p className="total-sold">
-          {isLoading ? "Loading..." : formatTokenAmount(tokensSold)}
+          {getTokensSoldDisplay()}
         </p>
         <p className="label">Tokens Sold</p>
       </div>
