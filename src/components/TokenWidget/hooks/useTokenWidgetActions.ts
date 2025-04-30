@@ -1,15 +1,17 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { purchaseTokens } from "../services/tokenPurchaseService";
-import toast from "react-hot-toast";
-import { useTokenTransfer } from "./useTokenTransfer";
-import { parseEther } from "viem";
+import { toast } from "react-hot-toast";
+import { usePaymentService } from "../services/paymentService";
+import { submitPurchaseRequest } from "../services/purchaseRequestService";
+import { showNotification } from "../utils/notificationUtils";
+import { MESSAGES } from "../constants/toastMessages";
 
 /**
  * Hook to manage token purchase actions
+ * Coordinates the overall purchase flow using specialized services
  */
 export function useTokenWidgetActions() {
   const { openConnectModal } = useConnectModal();
-  const { transferTokens } = useTokenTransfer();
+  const { handlePaymentTransaction } = usePaymentService();
 
   /**
    * Handles the buy tokens action
@@ -28,13 +30,14 @@ export function useTokenWidgetActions() {
     paymentMethod: string,
     tokenAmount: string
   ) => {
+    // Validation checks
     if (!isConnected) {
       openConnectModal?.();
       return;
     }
 
     if (!termsAccepted) {
-      toast.error("Please accept the terms and conditions");
+      showNotification("error", MESSAGES.TERMS_NOT_ACCEPTED);
       return;
     }
 
@@ -43,99 +46,67 @@ export function useTokenWidgetActions() {
       return;
     }
 
+    // Create a toast ID to track and update
+    const transferToast = toast.loading(
+      MESSAGES.PROCESSING_PAYMENT(paymentAmount, paymentMethod)
+    );
+
     try {
-      // Show payment processing toast
-      const transferToast = toast.loading(
-        `Processing payment of ${paymentAmount} ${paymentMethod}...`
+      // Step 1: Handle the payment transaction
+      const paymentResult = await handlePaymentTransaction(
+        paymentMethod,
+        paymentAmount,
+        transferToast
       );
 
-      // Step 1: Transfer tokens to the project wallet
-      let paymentTxHash: `0x${string}`;
+      if (!paymentResult.success) {
+        return false;
+      }
 
-      try {
-        paymentTxHash = await transferTokens(
-          paymentMethod as "ETH" | "USDT" | "USDC",
-          paymentAmount
+      // Verify that we have a transaction hash before proceeding
+      if (!paymentResult.txHash) {
+        console.error(
+          "Payment transaction completed but no transaction hash returned"
         );
-
-        // Update the toast with transaction info
-        toast.success(
-          `Payment successful! Transaction: ${paymentTxHash.substring(
-            0,
-            10
-          )}...`,
-          { id: transferToast, duration: 3000 }
-        );
-      } catch (transferError) {
-        // Handle transfer error
-        toast.error(
-          `Payment failed: ${
-            transferError instanceof Error
-              ? transferError.message
-              : "Unknown error"
-          }`,
-          { id: transferToast }
+        showNotification(
+          "error",
+          MESSAGES.GENERAL_ERROR(new Error("Missing transaction hash"))
         );
         return false;
       }
 
-      // Step 2: Call the API with the transaction hash
-      const apiToast = toast.loading(`Finalizing token purchase...`);
+      const paymentTxHash = paymentResult.txHash;
 
-      // Convert tokenAmount to wei for the API
-      let tokenAmountInWei: string;
-      try {
-        tokenAmountInWei = parseEther(tokenAmount).toString();
-      } catch (error) {
-        console.error("Error converting token amount to wei:", error);
-        tokenAmountInWei = parseEther("0").toString();
-      }
+      // Step 2: Submit the purchase request to the API
+      const apiToast = toast.loading(MESSAGES.FINALIZING_PURCHASE);
 
-      const data = await purchaseTokens({
-        walletAddress: address,
-        amount: tokenAmountInWei, // The amount of tokens in wei that the user will receive
-        selectedPaymentToken: paymentMethod,
-        paymentAmount: paymentAmount, // The amount of ETH/USDT/USDC that the user will pay
-        paymentTxHash: paymentTxHash, // Include the payment transaction hash
-        referralCode: undefined, // Add referral handling if needed
+      const purchaseResult = await submitPurchaseRequest({
+        address,
+        paymentTxHash,
+        paymentAmount,
+        paymentMethod,
+        tokenAmount,
+        apiToast,
       });
 
-      // Dismiss API loading toast
-      toast.dismiss(apiToast);
-
-      console.log("Purchase successful:", data);
-
-      // Show detailed success toast
-      toast.success(
-        `🎉 Purchase Initiated!\n\nYou'll receive: ${tokenAmount} LYNO tokens in 30 days\nPaid with: ${paymentAmount} ${paymentMethod}\nPayment Transaction: ${paymentTxHash.substring(
-          0,
-          10
-        )}...\n\nCheck your wallet for confirmation after 30 days.`,
-        {
-          duration: 10000,
-          style: {
-            maxWidth: "500px",
-            whiteSpace: "pre-line", // This preserves the line breaks
-          },
-        }
-      );
-      return true;
+      if (purchaseResult.success) {
+        // Show simple success notification and refresh page
+        showNotification(
+          "success",
+          MESSAGES.PURCHASE_SUCCESS(tokenAmount),
+          5000,
+          // Callback to refresh the page after notification
+          () => setTimeout(() => window.location.reload(), 5000)
+        );
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
+      // General error handler
       console.error("Error buying tokens:", error);
-
-      // Show detailed error toast
-      toast.error(
-        `❌ Purchase Failed\n\n${
-          error instanceof Error ? error.message : "Unknown error"
-        }\n\nPlease try again later or contact support.`,
-        {
-          duration: 7000,
-          style: {
-            maxWidth: "500px",
-            whiteSpace: "pre-line", // This preserves the line breaks
-          },
-        }
-      );
+      toast.dismiss(); // Dismiss any active toasts
+      showNotification("error", MESSAGES.GENERAL_ERROR(error));
       return false;
     }
   };
